@@ -1,5 +1,3 @@
-//HTML
-import htmlmin from 'gulp-htmlmin';
 
 //CSS
 import postcss from 'gulp-postcss';
@@ -28,56 +26,47 @@ import { init as server, stream, reload } from 'browser-sync';
 
 //Plumber
 import plumber from 'gulp-plumber';
-
+import sass from "gulp-sass"
+import pug from "gulp-pug"
 
 //Variables/constantes
 const cssPlugins = [cssnano(), autoprefixer()];
 
-gulp.task('html-min', () => {
+gulp.task('pug', () => {
   return gulp
-    .src('./src/*.html')
+    .src('./src/views/pages/*.pug')
     .pipe(plumber())
-    .pipe(
-      htmlmin({
-        collapseWhitespace: true,
-        removeComments: true
-      })
-    )
+    .pipe(pug())
     .pipe(cacheBust({
       type:"timestamp"
     }))
     .pipe(gulp.dest('./public'));
 });
-gulp.task('html-min-docs', () => {
+gulp.task('pug-docs', () => {
   return gulp
-    .src('./src/*.html')
+    .src('./src/views/pages/*.pug')
     .pipe(plumber())
-    .pipe(
-      htmlmin({
-        collapseWhitespace: true,
-        removeComments: true
-      })
-    )
+    .pipe(pug())
     .pipe(cacheBust({
       type:"timestamp"
     }))
     .pipe(gulp.dest('./docs'));
 });
 
-gulp.task('styles', () => {
+gulp.task('sass', () => {
   return gulp
-    .src('./src/css/*.css')
+    .src('./src/css/styles.scss')
     .pipe(plumber())
-    .pipe(concat('styles-min.css'))
+    .pipe(sass())
     .pipe(postcss(cssPlugins))
     .pipe(gulp.dest('./public/css'))
     .pipe(stream());
 });
-gulp.task('styles-docs', () => {
+gulp.task('sass-docs', () => {
   return gulp
-    .src('./src/css/*.css')
+    .src('./src/css/styles.scss')
     .pipe(plumber())
-    .pipe(concat('styles-min.css'))
+    .pipe(sass())
     .pipe(postcss(cssPlugins))
     .pipe(gulp.dest('./docs/css/'))
     .pipe(stream());
@@ -146,14 +135,14 @@ gulp.task('default', () => {
   server({
     server: './public'
   });
-   gulp.watch('./src/*.html', gulp.series('html-min')).on('change', reload)
-   gulp.watch('./src/css/*.css', gulp.series('styles'))
+   gulp.watch('./src/views/**/*.pug', gulp.series('pug')).on('change', reload)
+   gulp.watch('./src/css/**/*.scss', gulp.series('sass'))
    gulp.watch('./src/js/*.js', gulp.series('babel')).on('change', reload);
 });
 
 
 gulp.task('docs', () => {
-   gulp.watch('./src/*.html', gulp.series('html-min-docs'))
-   gulp.watch('./src/css/*.css', gulp.series('styles-docs'))
+   gulp.watch('./src/views/**/*.pug', gulp.series('html-min-docs'))
+   gulp.watch('./src/css/**/*.scss', gulp.series('styles-docs'))
    gulp.watch('./src/js/*.js', gulp.series('babel-docs'))
 });
